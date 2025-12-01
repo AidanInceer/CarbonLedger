@@ -1,0 +1,44 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}Summary - {{ project.name }} - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/tabs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="project-nav-tabs">
+    <a href="{% url 'home' project.id %}" class="tab-link">
+        <span class="tab-icon">📊</span>
+        Transactions
+    </a>
+    <a href="{% url 'project_reporting' project.id %}" class="tab-link">
+        <span class="tab-icon">📈</span>
+        Reporting
+    </a>
+    <a href="{% url 'project_configuration' project.id %}" class="tab-link">
+        <span class="tab-icon">⚙️</span>
+        Configuration
+    </a>
+    <a href="{% url 'project_summary' project.id %}" class="tab-link active">
+        <span class="tab-icon">📝</span>
+        Summary
+    </a>
+    <a href="{% url 'project_team' project.id %}" class="tab-link">
+        <span class="tab-icon">👥</span>
+        Team
+    </a>
+</div>
+
+<h1 class="page-title">{{ project.name }} - Summary & Notes</h1>
+
+<div class="card">
+    <div class="placeholder-content">
+        <div class="placeholder-icon">📝</div>
+        <h2>Project Summary</h2>
+        <p>Summary statistics and notes will be displayed here</p>
+    </div>
+</div>
+{% endblock %}

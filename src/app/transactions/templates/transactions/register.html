@@ -1,0 +1,85 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}Create Account - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-hero">
+        <div class="hero-icon">🌱</div>
+        <h1 class="hero-title">CarbonLedger</h1>
+        <p class="hero-subtitle">Carbon Footprint Transaction Tracking</p>
+    </div>
+
+    <div class="login-card">
+        <h2 class="login-title">Create Your Account</h2>
+        <p class="login-subtitle">Join us to start tracking your carbon footprint</p>
+
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">
+                    <span class="label-icon">👤</span>
+                    Username
+                </label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username"
+                    required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="email">
+                    <span class="label-icon">📧</span>
+                    Email (Optional)
+                </label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <span class="label-icon">🔒</span>
+                    Password
+                </label>
+                <input type="password" id="password" name="password" class="form-input"
+                    placeholder="Minimum 8 characters" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirm">
+                    <span class="label-icon">✓</span>
+                    Confirm Password
+                </label>
+                <input type="password" id="password_confirm" name="password_confirm" class="form-input"
+                    placeholder="Re-enter password" required>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <span>Create Account</span>
+                <span class="btn-arrow">→</span>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>Already have an account? <a href="{% url 'login' %}">Sign In</a></p>
+        </div>
+    </div>
+
+    <div class="login-features">
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div class="feature-text">Real-time Analytics</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔐</div>
+            <div class="feature-text">Secure & Private</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">☁️</div>
+            <div class="feature-text">Cloud Synced</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

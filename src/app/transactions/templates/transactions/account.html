@@ -1,0 +1,23 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}Account - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Account</h1>
+
+<div class="card">
+    <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">User Information</h2>
+    <p style="color: var(--text-secondary);">
+        <strong>Username:</strong> {{ user.username }}<br>
+        <strong>Email:</strong> {{ user.email|default:"Not set" }}
+    </p>
+    <p style="color: var(--text-secondary); margin-top: 1.5rem; font-size: 0.875rem;">
+        Account management features coming soon.
+    </p>
+</div>
+{% endblock %}

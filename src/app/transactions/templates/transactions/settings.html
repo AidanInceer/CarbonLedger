@@ -1,0 +1,76 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}Settings - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Settings</h1>
+
+<div class="settings-container">
+    <div class="settings-card">
+        <div class="settings-header">
+            <h2>⚙️ Appearance</h2>
+            <p>Customize how CarbonLedger looks and feels</p>
+        </div>
+
+        <form method="post" class="theme-form">
+            {% csrf_token %}
+            <div class="theme-options">
+                <button type="submit" name="theme" value="light"
+                    class="theme-card {% if profile.theme == 'light' %}active{% endif %}">
+                    <div class="theme-preview light-preview">
+                        <div class="preview-header"></div>
+                        <div class="preview-content">
+                            <div class="preview-bar"></div>
+                            <div class="preview-bar short"></div>
+                            <div class="preview-bar"></div>
+                        </div>
+                    </div>
+                    <div class="theme-info">
+                        <div class="theme-icon">☀️</div>
+                        <div class="theme-details">
+                            <h3>Light Mode</h3>
+                            <p>Clean and bright interface</p>
+                        </div>
+                        {% if profile.theme == 'light' %}
+                        <div class="theme-check">✓</div>
+                        {% endif %}
+                    </div>
+                </button>
+
+                <button type="submit" name="theme" value="dark"
+                    class="theme-card {% if profile.theme == 'dark' %}active{% endif %}">
+                    <div class="theme-preview dark-preview">
+                        <div class="preview-header"></div>
+                        <div class="preview-content">
+                            <div class="preview-bar"></div>
+                            <div class="preview-bar short"></div>
+                            <div class="preview-bar"></div>
+                        </div>
+                    </div>
+                    <div class="theme-info">
+                        <div class="theme-icon">🌙</div>
+                        <div class="theme-details">
+                            <h3>Dark Mode</h3>
+                            <p>Easy on the eyes</p>
+                        </div>
+                        {% if profile.theme == 'dark' %}
+                        <div class="theme-check">✓</div>
+                        {% endif %}
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        <div class="settings-note">
+            <span class="note-icon">💡</span>
+            <p>Currently using <strong>{{ profile.theme|title }} Mode</strong>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

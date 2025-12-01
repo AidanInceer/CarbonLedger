@@ -1,0 +1,120 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}Projects - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/projects.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="projects-header">
+    <div class="header-content-wrapper">
+        <div class="header-text">
+            <h1 class="page-title">Your Projects</h1>
+            <p class="page-subtitle">Organize transactions into separate projects for better tracking</p>
+        </div>
+        <button class="btn-primary" onclick="openModal()">
+            <span class="btn-icon">+</span>
+            New Project
+        </button>
+    </div>
+</div>
+
+{% if projects %}
+<div class="projects-grid">
+    {% for project in projects %}
+    <div class="project-card" onclick="window.location.href='{% url 'home' project.id %}'">
+        <div class="project-header">
+            <div class="project-icon">📊</div>
+            <form method="post" action="{% url 'delete_project' project.id %}" class="delete-form"
+                onsubmit="event.stopPropagation(); return confirm('Delete {{ project.name }}? All transactions will be permanently lost!');"
+                onclick="event.stopPropagation();">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete-icon" title="Delete project">🗑️</button>
+            </form>
+        </div>
+        <h3 class="project-name">{{ project.name }}</h3>
+        <p class="project-description">{{ project.description|default:"No description provided" }}</p>
+        <div class="project-footer">
+            <div class="project-stat">
+                <span class="stat-icon">📅</span>
+                <span class="stat-text">{{ project.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="project-stat">
+                <span class="stat-icon">📈</span>
+                <span class="stat-text">{{ project.transactions.count }} transactions</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state-container">
+    <div class="empty-state-card">
+        <div class="empty-state-icon">📂</div>
+        <h2>No Projects Yet</h2>
+        <p>Get started by creating your first project to organize your carbon footprint transactions</p>
+        <button class="btn-primary btn-large" onclick="openModal()">
+            <span class="btn-icon">+</span>
+            Create Your First Project
+        </button>
+    </div>
+</div>
+{% endif %}
+
+<!-- Create Project Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Create New Project</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'create_project' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">
+                    <span class="label-icon">📝</span>
+                    Project Name
+                </label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g., Q4 2025 Carbon Tracking"
+                    required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="description">
+                    <span class="label-icon">📄</span>
+                    Description (Optional)
+                </label>
+                <textarea id="description" name="description" class="form-input" rows="3"
+                    placeholder="What is this project about?"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary btn-submit">Create Project</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('createModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('createModal').classList.remove('active');
+    }
+
+    document.getElementById('createModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

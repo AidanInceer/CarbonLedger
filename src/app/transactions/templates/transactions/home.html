@@ -1,0 +1,149 @@
+{% extends 'transactions/base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} - CarbonLedger{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/tabs.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="project-nav-tabs">
+    <a href="{% url 'home' project.id %}" class="tab-link active">
+        <span class="tab-icon">📊</span>
+        Transactions
+    </a>
+    <a href="{% url 'project_reporting' project.id %}" class="tab-link">
+        <span class="tab-icon">📈</span>
+        Reporting
+    </a>
+    <a href="{% url 'project_configuration' project.id %}" class="tab-link">
+        <span class="tab-icon">⚙️</span>
+        Configuration
+    </a>
+    <a href="{% url 'project_summary' project.id %}" class="tab-link">
+        <span class="tab-icon">📝</span>
+        Summary
+    </a>
+    <a href="{% url 'project_team' project.id %}" class="tab-link">
+        <span class="tab-icon">👥</span>
+        Team
+    </a>
+</div>
+
+<div class="header-row">
+    <div>
+        <h1 class="page-title">{{ project.name }}</h1>
+        <p style="color: var(--text-muted); margin-top: -1rem;">Transaction Dashboard</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Transaction</button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Transactions</div>
+        <div class="stat-value">{{ transactions|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">${{ transactions|length|add:"0"|default:"0.00" }}</div>
+    </div>
+</div>
+
+{% if transactions %}
+<table>
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.item_name }}</td>
+            <td><span class="category-badge category-{{ transaction.category }}">{{ transaction.get_category_display
+                    }}</span></td>
+            <td>{{ transaction.customer_name|default:"N/A" }}</td>
+            <td>${{ transaction.amount }}</td>
+            <td>{{ transaction.date|date:"M d, Y" }}</td>
+            <td>
+                <form method="post" action="{% url 'delete_transaction' transaction.id %}" style="display: inline;"
+                    onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-state-icon">☕</div>
+        <h2>No transactions yet</h2>
+        <p>Click "Add Transaction" to get started!</p>
+    </div>
+</div>
+{% endif %}
+
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add Transaction</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'add_transaction' project.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.item_name.id_for_label }}">Item Name</label>
+                {{ form.item_name }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.amount.id_for_label }}">Amount ($)</label>
+                {{ form.amount }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.category.id_for_label }}">Category</label>
+                {{ form.category }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.customer_name.id_for_label }}">Customer Name (Optional)</label>
+                {{ form.customer_name }}
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary btn-submit">Add Transaction</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('addModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('addModal').classList.remove('active');
+    }
+
+    document.getElementById('addModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}
