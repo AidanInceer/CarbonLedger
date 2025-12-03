@@ -1,44 +1,174 @@
 {% extends 'transactions/base.html' %}
 {% load static %}
 
-{% block title %}Team - {{ project.name }} - CarbonLedger{% endblock %}
+{% block title %}Team - {{ project.name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 <link rel="stylesheet" href="{% static 'css/tabs.css' %}">
+<style>
+    .team-grid {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .add-member-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+    }
+
+    .role-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-admin {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .role-member {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .role-viewer {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    body.dark .role-admin {
+        background: rgba(153, 27, 27, 0.2);
+        color: #fca5a5;
+    }
+
+    body.dark .role-member {
+        background: rgba(30, 64, 175, 0.2);
+        color: #93c5fd;
+    }
+
+    body.dark .role-viewer {
+        background: rgba(55, 65, 81, 0.2);
+        color: #d1d5db;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="project-nav-tabs">
     <a href="{% url 'home' project.id %}" class="tab-link">
-        <span class="tab-icon">📊</span>
-        Transactions
+        <span class="tab-icon">📊</span> Transactions
     </a>
     <a href="{% url 'project_reporting' project.id %}" class="tab-link">
-        <span class="tab-icon">📈</span>
-        Reporting
+        <span class="tab-icon">📈</span> Reporting
     </a>
     <a href="{% url 'project_configuration' project.id %}" class="tab-link">
-        <span class="tab-icon">⚙️</span>
-        Configuration
+        <span class="tab-icon">⚙️</span> Configuration
     </a>
     <a href="{% url 'project_summary' project.id %}" class="tab-link">
-        <span class="tab-icon">📝</span>
-        Summary
+        <span class="tab-icon">📝</span> Summary
     </a>
     <a href="{% url 'project_team' project.id %}" class="tab-link active">
-        <span class="tab-icon">👥</span>
-        Team
+        <span class="tab-icon">👥</span> Team
     </a>
 </div>
 
-<h1 class="page-title">{{ project.name }} - Team Members</h1>
-
-<div class="card">
-    <div class="placeholder-content">
-        <div class="placeholder-icon">👥</div>
-        <h2>Team Collaboration</h2>
-        <p>Team member management will be available here</p>
+<div class="header-row">
+    <div>
+        <h1 class="page-title">Team Members</h1>
+        <p style="color: var(--text-muted); margin-top: -1rem;">Manage project access and roles</p>
     </div>
+</div>
+
+<div class="team-grid">
+    {% if is_owner or current_user_role == 'admin' %}
+    <div class="add-member-card">
+        <h3>Add Member</h3>
+        <form method="post" class="form-actions" style="margin-top: 1rem; align-items: flex-end;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_member">
+            <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                <label>Username</label>
+                <input type="text" name="username" class="form-input" required placeholder="Enter username">
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label>Role</label>
+                <select name="role" class="form-input">
+                    <option value="member">Member</option>
+                    <option value="viewer">Viewer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" style="flex: 0 0 auto;">Add Member</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+                {% if is_owner or current_user_role == 'admin' %}<th>Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Owner -->
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">{{ project.owner.username }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">{{ project.owner.email }}</div>
+                </td>
+                <td><span class="role-badge role-admin">Owner</span></td>
+                <td>{{ project.created_at|date:"M d, Y" }}</td>
+                {% if is_owner or current_user_role == 'admin' %}<td></td>{% endif %}
+            </tr>
+
+            <!-- Members -->
+            {% for member in members %}
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">{{ member.user.username }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">{{ member.user.email }}</div>
+                </td>
+                <td>
+                    {% if is_owner or current_user_role == 'admin' %}
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_role">
+                        <input type="hidden" name="member_id" value="{{ member.id }}">
+                        <select name="role" onchange="this.form.submit()" class="form-input"
+                            style="padding: 0.25rem; font-size: 0.875rem;">
+                            <option value="admin" {% if member.role=='admin' %}selected{% endif %}>Admin</option>
+                            <option value="member" {% if member.role=='member' %}selected{% endif %}>Member</option>
+                            <option value="viewer" {% if member.role=='viewer' %}selected{% endif %}>Viewer</option>
+                        </select>
+                    </form>
+                    {% else %}
+                    <span class="role-badge role-{{ member.role }}">{{ member.get_role_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ member.joined_at|date:"M d, Y" }}</td>
+                {% if is_owner or current_user_role == 'admin' %}
+                <td>
+                    <form method="post" style="display: inline;" onsubmit="return confirm('Remove this user?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove_member">
+                        <input type="hidden" name="member_id" value="{{ member.id }}">
+                        <button type="submit" class="btn-danger"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Remove</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

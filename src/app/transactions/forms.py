@@ -6,7 +6,7 @@ from .models import Transaction
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['item_name', 'amount', 'customer_name', 'category']
+        fields = ['item_name', 'amount', 'customer_name', 'category', 'date']
         widgets = {
             'item_name': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -23,5 +23,9 @@ class TransactionForm(forms.ModelForm):
             }),
             'category': forms.Select(attrs={
                 'class': 'form-input'
+            }),
+            'date': forms.DateTimeInput(attrs={
+                'class': 'form-input',
+                'type': 'datetime-local'
             }),
         }

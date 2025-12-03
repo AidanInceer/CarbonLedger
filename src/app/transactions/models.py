@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class UserProfile(models.Model):
@@ -40,7 +41,7 @@ class Transaction(models.Model):
     ]
     
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='transactions')
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)
     item_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     customer_name = models.CharField(max_length=100, blank=True)
@@ -51,3 +52,24 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.item_name} - ${self.amount} ({self.date.strftime('%Y-%m-%d %H:%M')})"
+
+
+class ProjectMember(models.Model):
+    """Model representing a member of a project."""
+    
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('member', 'Member'),
+        ('viewer', 'Viewer'),
+    ]
+    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_memberships')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['project', 'user']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.name} ({self.role})"
