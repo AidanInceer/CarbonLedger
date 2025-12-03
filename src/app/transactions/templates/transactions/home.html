@@ -67,8 +67,8 @@
         {% for transaction in transactions %}
         <tr>
             <td>{{ transaction.item_name }}</td>
-            <td><span class="category-badge category-{{ transaction.category|lower }}">{{
-                    transaction.get_category_display }}</span></td>
+            <td><span class="category-badge category-{{ transaction.category|lower }}">
+                    {{ transaction.get_category_display }}</span></td>
             <td>{{ transaction.customer_name|default:"N/A" }}</td>
             <td>${{ transaction.amount }}</td>
             <td>{{ transaction.date|date:"M d, Y" }}</td>
