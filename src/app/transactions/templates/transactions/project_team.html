@@ -86,26 +86,33 @@
 </div>
 
 <div class="team-grid">
-    {% if is_owner or current_user_role == 'admin' %}
+    {% if is_owner %}
     <div class="add-member-card">
         <h3>Add Member</h3>
-        <form method="post" class="form-actions" style="margin-top: 1rem; align-items: flex-end;">
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Add an existing user or create a new user account
+        </p>
+        <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
             {% csrf_token %}
             <input type="hidden" name="action" value="add_member">
-            <div class="form-group" style="flex: 2; margin-bottom: 0;">
-                <label>Username</label>
-                <input type="text" name="username" class="form-input" required placeholder="Enter username">
+            <input type="hidden" name="role" value="member">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Username *</label>
+                    <input type="text" name="username" class="form-input" required placeholder="Enter username">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Email (optional)</label>
+                    <input type="email" name="email" class="form-input" placeholder="user@example.com">
+                </div>
             </div>
-            <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                <label>Role</label>
-                <select name="role" class="form-input">
-                    <option value="member">Member</option>
-                    <option value="viewer">Viewer</option>
-                    <option value="admin">Admin</option>
-                </select>
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-primary">Add Member</button>
             </div>
-            <button type="submit" class="btn-primary" style="flex: 0 0 auto;">Add Member</button>
         </form>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+            * New users will be created with default password "ChangeMe123!"
+        </p>
     </div>
     {% endif %}
 
@@ -115,7 +122,7 @@
                 <th>User</th>
                 <th>Role</th>
                 <th>Joined</th>
-                {% if is_owner or current_user_role == 'admin' %}<th>Actions</th>{% endif %}
+                {% if is_owner %}<th>Actions</th>{% endif %}
             </tr>
         </thead>
         <tbody>
@@ -127,7 +134,7 @@
                 </td>
                 <td><span class="role-badge role-admin">Owner</span></td>
                 <td>{{ project.created_at|date:"M d, Y" }}</td>
-                {% if is_owner or current_user_role == 'admin' %}<td></td>{% endif %}
+                {% if is_owner %}<td></td>{% endif %}
             </tr>
 
             <!-- Members -->
@@ -138,26 +145,13 @@
                     <div style="font-size: 0.8rem; color: var(--text-muted);">{{ member.user.email }}</div>
                 </td>
                 <td>
-                    {% if is_owner or current_user_role == 'admin' %}
-                    <form method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="update_role">
-                        <input type="hidden" name="member_id" value="{{ member.id }}">
-                        <select name="role" onchange="this.form.submit()" class="form-input"
-                            style="padding: 0.25rem; font-size: 0.875rem;">
-                            <option value="admin" {% if member.role=='admin' %}selected{% endif %}>Admin</option>
-                            <option value="member" {% if member.role=='member' %}selected{% endif %}>Member</option>
-                            <option value="viewer" {% if member.role=='viewer' %}selected{% endif %}>Viewer</option>
-                        </select>
-                    </form>
-                    {% else %}
                     <span class="role-badge role-{{ member.role }}">{{ member.get_role_display }}</span>
-                    {% endif %}
                 </td>
                 <td>{{ member.joined_at|date:"M d, Y" }}</td>
-                {% if is_owner or current_user_role == 'admin' %}
+                {% if is_owner %}
                 <td>
-                    <form method="post" style="display: inline;" onsubmit="return confirm('Remove this user?');">
+                    <form method="post" style="display: inline;" data-confirm="remove-member"
+                        data-confirm-message="{{ member.user.username }}">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="remove_member">
                         <input type="hidden" name="member_id" value="{{ member.id }}">

@@ -69,7 +69,7 @@ uv run ruff check . --fix  # Auto-fix issues
 - [ ] **1.1 Excel File Upload**: Implement ability to upload an Excel file and automatically populate the transactions tab (upload to the database)
 - [ ] **1.2 Customizable Reporting**: Add customizable reporting features (e.g., bar charts, custom visualizations)
 - [ ] **1.3 Model Page**: Create a new page for Model (rename the customization/settings tab in projects)
-- [ ] **1.4 Account and Team Management**: Implement proper account and team management functionality
+- [x] **1.4 Account and Team Management**: Implement proper account and team management functionality
 
 ### Phase 2: Model Implementation
 

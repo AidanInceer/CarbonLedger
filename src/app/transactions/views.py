@@ -292,18 +292,30 @@ def project_team(request, project_id):
         if can_manage:
             if action == 'add_member':
                 username = request.POST.get('username')
+                email = request.POST.get('email', '')
                 role = request.POST.get('role', 'member')
+                
+                # Check if user exists, create if not
                 try:
                     user_to_add = User.objects.get(username=username)
-                    if user_to_add == project.owner:
-                        messages.warning(request, f'{username} is the project owner.')
-                    elif ProjectMember.objects.filter(project=project, user=user_to_add).exists():
-                        messages.warning(request, f'{username} is already a member.')
-                    else:
-                        ProjectMember.objects.create(project=project, user=user_to_add, role=role)
-                        messages.success(request, f'{username} added successfully.')
                 except User.DoesNotExist:
-                    messages.error(request, f'User {username} not found.')
+                    # Create new user with a default password
+                    user_to_add = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password='ChangeMe123!'  # Default password
+                    )
+                    UserProfile.objects.create(user=user_to_add, theme='light')
+                    messages.info(request, f'New user {username} created with default password "ChangeMe123!" - they should change it on first login.')
+                
+                # Now add the user to the project
+                if user_to_add == project.owner:
+                    messages.warning(request, f'{username} is the project owner.')
+                elif ProjectMember.objects.filter(project=project, user=user_to_add).exists():
+                    messages.warning(request, f'{username} is already a member.')
+                else:
+                    ProjectMember.objects.create(project=project, user=user_to_add, role=role)
+                    messages.success(request, f'{username} added to project successfully.')
                     
             elif action == 'remove_member':
                 member_id = request.POST.get('member_id')

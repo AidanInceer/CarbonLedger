@@ -28,7 +28,7 @@
         <div class="project-header">
             <div class="project-icon">📊</div>
             <form method="post" action="{% url 'delete_project' project.id %}" class="delete-form"
-                onsubmit="event.stopPropagation(); return confirm('Delete {{ project.name }}? All transactions will be permanently lost!');"
+                data-confirm="delete-project" data-confirm-message="{{ project.name }}"
                 onclick="event.stopPropagation();">
                 {% csrf_token %}
                 <button type="submit" class="btn-delete-icon" title="Delete project">🗑️</button>
