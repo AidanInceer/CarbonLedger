@@ -1,5 +1,10 @@
 # CarbonLedger
 
+⚡️ **Note:** This website is primarily vibe coded.
+
+
+🚀 **Purpose:** This project is intended as a proof‑of‑concept / MVP.
+
 A Python project combining a Machine Learning engine (placeholder) with a Django web application for tracking carbon footprint transactions.
 
 ## Project Structure
